@@ -16,6 +16,21 @@ import { Route as ExtractionRouteImport } from './routes/extraction'
 import { Route as ClausesRouteImport } from './routes/clauses'
 import { Route as ChatRouteImport } from './routes/chat'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as UsersTeamRouteImport } from './routes/users.team'
+import { Route as UsersSecurityRouteImport } from './routes/users.security'
+import { Route as ReportingSummaryRouteImport } from './routes/reporting.summary'
+import { Route as ReportingExportRouteImport } from './routes/reporting.export'
+import { Route as ReportingDiscrepancyRouteImport } from './routes/reporting.discrepancy'
+import { Route as IngestionUploadRouteImport } from './routes/ingestion.upload'
+import { Route as IngestionOcrRouteImport } from './routes/ingestion.ocr'
+import { Route as ExtractionTechnicalRouteImport } from './routes/extraction.technical'
+import { Route as ExtractionConfidenceRouteImport } from './routes/extraction.confidence'
+import { Route as ExtractionCommercialRouteImport } from './routes/extraction.commercial'
+import { Route as ClausesIdentificationRouteImport } from './routes/clauses.identification'
+import { Route as ClausesClassificationRouteImport } from './routes/clauses.classification'
+import { Route as ChatSummarizeRouteImport } from './routes/chat.summarize'
+import { Route as ChatQueryRouteImport } from './routes/chat.query'
+import { Route as ChatAssistantRouteImport } from './routes/chat.assistant'
 
 const UsersRoute = UsersRouteImport.update({
   id: '/users',
@@ -52,34 +67,154 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const UsersTeamRoute = UsersTeamRouteImport.update({
+  id: '/team',
+  path: '/team',
+  getParentRoute: () => UsersRoute,
+} as any)
+const UsersSecurityRoute = UsersSecurityRouteImport.update({
+  id: '/security',
+  path: '/security',
+  getParentRoute: () => UsersRoute,
+} as any)
+const ReportingSummaryRoute = ReportingSummaryRouteImport.update({
+  id: '/summary',
+  path: '/summary',
+  getParentRoute: () => ReportingRoute,
+} as any)
+const ReportingExportRoute = ReportingExportRouteImport.update({
+  id: '/export',
+  path: '/export',
+  getParentRoute: () => ReportingRoute,
+} as any)
+const ReportingDiscrepancyRoute = ReportingDiscrepancyRouteImport.update({
+  id: '/discrepancy',
+  path: '/discrepancy',
+  getParentRoute: () => ReportingRoute,
+} as any)
+const IngestionUploadRoute = IngestionUploadRouteImport.update({
+  id: '/upload',
+  path: '/upload',
+  getParentRoute: () => IngestionRoute,
+} as any)
+const IngestionOcrRoute = IngestionOcrRouteImport.update({
+  id: '/ocr',
+  path: '/ocr',
+  getParentRoute: () => IngestionRoute,
+} as any)
+const ExtractionTechnicalRoute = ExtractionTechnicalRouteImport.update({
+  id: '/technical',
+  path: '/technical',
+  getParentRoute: () => ExtractionRoute,
+} as any)
+const ExtractionConfidenceRoute = ExtractionConfidenceRouteImport.update({
+  id: '/confidence',
+  path: '/confidence',
+  getParentRoute: () => ExtractionRoute,
+} as any)
+const ExtractionCommercialRoute = ExtractionCommercialRouteImport.update({
+  id: '/commercial',
+  path: '/commercial',
+  getParentRoute: () => ExtractionRoute,
+} as any)
+const ClausesIdentificationRoute = ClausesIdentificationRouteImport.update({
+  id: '/identification',
+  path: '/identification',
+  getParentRoute: () => ClausesRoute,
+} as any)
+const ClausesClassificationRoute = ClausesClassificationRouteImport.update({
+  id: '/classification',
+  path: '/classification',
+  getParentRoute: () => ClausesRoute,
+} as any)
+const ChatSummarizeRoute = ChatSummarizeRouteImport.update({
+  id: '/summarize',
+  path: '/summarize',
+  getParentRoute: () => ChatRoute,
+} as any)
+const ChatQueryRoute = ChatQueryRouteImport.update({
+  id: '/query',
+  path: '/query',
+  getParentRoute: () => ChatRoute,
+} as any)
+const ChatAssistantRoute = ChatAssistantRouteImport.update({
+  id: '/assistant',
+  path: '/assistant',
+  getParentRoute: () => ChatRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/chat': typeof ChatRoute
-  '/clauses': typeof ClausesRoute
-  '/extraction': typeof ExtractionRoute
-  '/ingestion': typeof IngestionRoute
-  '/reporting': typeof ReportingRoute
-  '/users': typeof UsersRoute
+  '/chat': typeof ChatRouteWithChildren
+  '/clauses': typeof ClausesRouteWithChildren
+  '/extraction': typeof ExtractionRouteWithChildren
+  '/ingestion': typeof IngestionRouteWithChildren
+  '/reporting': typeof ReportingRouteWithChildren
+  '/users': typeof UsersRouteWithChildren
+  '/chat/assistant': typeof ChatAssistantRoute
+  '/chat/query': typeof ChatQueryRoute
+  '/chat/summarize': typeof ChatSummarizeRoute
+  '/clauses/classification': typeof ClausesClassificationRoute
+  '/clauses/identification': typeof ClausesIdentificationRoute
+  '/extraction/commercial': typeof ExtractionCommercialRoute
+  '/extraction/confidence': typeof ExtractionConfidenceRoute
+  '/extraction/technical': typeof ExtractionTechnicalRoute
+  '/ingestion/ocr': typeof IngestionOcrRoute
+  '/ingestion/upload': typeof IngestionUploadRoute
+  '/reporting/discrepancy': typeof ReportingDiscrepancyRoute
+  '/reporting/export': typeof ReportingExportRoute
+  '/reporting/summary': typeof ReportingSummaryRoute
+  '/users/security': typeof UsersSecurityRoute
+  '/users/team': typeof UsersTeamRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/chat': typeof ChatRoute
-  '/clauses': typeof ClausesRoute
-  '/extraction': typeof ExtractionRoute
-  '/ingestion': typeof IngestionRoute
-  '/reporting': typeof ReportingRoute
-  '/users': typeof UsersRoute
+  '/chat': typeof ChatRouteWithChildren
+  '/clauses': typeof ClausesRouteWithChildren
+  '/extraction': typeof ExtractionRouteWithChildren
+  '/ingestion': typeof IngestionRouteWithChildren
+  '/reporting': typeof ReportingRouteWithChildren
+  '/users': typeof UsersRouteWithChildren
+  '/chat/assistant': typeof ChatAssistantRoute
+  '/chat/query': typeof ChatQueryRoute
+  '/chat/summarize': typeof ChatSummarizeRoute
+  '/clauses/classification': typeof ClausesClassificationRoute
+  '/clauses/identification': typeof ClausesIdentificationRoute
+  '/extraction/commercial': typeof ExtractionCommercialRoute
+  '/extraction/confidence': typeof ExtractionConfidenceRoute
+  '/extraction/technical': typeof ExtractionTechnicalRoute
+  '/ingestion/ocr': typeof IngestionOcrRoute
+  '/ingestion/upload': typeof IngestionUploadRoute
+  '/reporting/discrepancy': typeof ReportingDiscrepancyRoute
+  '/reporting/export': typeof ReportingExportRoute
+  '/reporting/summary': typeof ReportingSummaryRoute
+  '/users/security': typeof UsersSecurityRoute
+  '/users/team': typeof UsersTeamRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/chat': typeof ChatRoute
-  '/clauses': typeof ClausesRoute
-  '/extraction': typeof ExtractionRoute
-  '/ingestion': typeof IngestionRoute
-  '/reporting': typeof ReportingRoute
-  '/users': typeof UsersRoute
+  '/chat': typeof ChatRouteWithChildren
+  '/clauses': typeof ClausesRouteWithChildren
+  '/extraction': typeof ExtractionRouteWithChildren
+  '/ingestion': typeof IngestionRouteWithChildren
+  '/reporting': typeof ReportingRouteWithChildren
+  '/users': typeof UsersRouteWithChildren
+  '/chat/assistant': typeof ChatAssistantRoute
+  '/chat/query': typeof ChatQueryRoute
+  '/chat/summarize': typeof ChatSummarizeRoute
+  '/clauses/classification': typeof ClausesClassificationRoute
+  '/clauses/identification': typeof ClausesIdentificationRoute
+  '/extraction/commercial': typeof ExtractionCommercialRoute
+  '/extraction/confidence': typeof ExtractionConfidenceRoute
+  '/extraction/technical': typeof ExtractionTechnicalRoute
+  '/ingestion/ocr': typeof IngestionOcrRoute
+  '/ingestion/upload': typeof IngestionUploadRoute
+  '/reporting/discrepancy': typeof ReportingDiscrepancyRoute
+  '/reporting/export': typeof ReportingExportRoute
+  '/reporting/summary': typeof ReportingSummaryRoute
+  '/users/security': typeof UsersSecurityRoute
+  '/users/team': typeof UsersTeamRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -91,6 +226,21 @@ export interface FileRouteTypes {
     | '/ingestion'
     | '/reporting'
     | '/users'
+    | '/chat/assistant'
+    | '/chat/query'
+    | '/chat/summarize'
+    | '/clauses/classification'
+    | '/clauses/identification'
+    | '/extraction/commercial'
+    | '/extraction/confidence'
+    | '/extraction/technical'
+    | '/ingestion/ocr'
+    | '/ingestion/upload'
+    | '/reporting/discrepancy'
+    | '/reporting/export'
+    | '/reporting/summary'
+    | '/users/security'
+    | '/users/team'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -100,6 +250,21 @@ export interface FileRouteTypes {
     | '/ingestion'
     | '/reporting'
     | '/users'
+    | '/chat/assistant'
+    | '/chat/query'
+    | '/chat/summarize'
+    | '/clauses/classification'
+    | '/clauses/identification'
+    | '/extraction/commercial'
+    | '/extraction/confidence'
+    | '/extraction/technical'
+    | '/ingestion/ocr'
+    | '/ingestion/upload'
+    | '/reporting/discrepancy'
+    | '/reporting/export'
+    | '/reporting/summary'
+    | '/users/security'
+    | '/users/team'
   id:
     | '__root__'
     | '/'
@@ -109,16 +274,31 @@ export interface FileRouteTypes {
     | '/ingestion'
     | '/reporting'
     | '/users'
+    | '/chat/assistant'
+    | '/chat/query'
+    | '/chat/summarize'
+    | '/clauses/classification'
+    | '/clauses/identification'
+    | '/extraction/commercial'
+    | '/extraction/confidence'
+    | '/extraction/technical'
+    | '/ingestion/ocr'
+    | '/ingestion/upload'
+    | '/reporting/discrepancy'
+    | '/reporting/export'
+    | '/reporting/summary'
+    | '/users/security'
+    | '/users/team'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  ChatRoute: typeof ChatRoute
-  ClausesRoute: typeof ClausesRoute
-  ExtractionRoute: typeof ExtractionRoute
-  IngestionRoute: typeof IngestionRoute
-  ReportingRoute: typeof ReportingRoute
-  UsersRoute: typeof UsersRoute
+  ChatRoute: typeof ChatRouteWithChildren
+  ClausesRoute: typeof ClausesRouteWithChildren
+  ExtractionRoute: typeof ExtractionRouteWithChildren
+  IngestionRoute: typeof IngestionRouteWithChildren
+  ReportingRoute: typeof ReportingRouteWithChildren
+  UsersRoute: typeof UsersRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -172,17 +352,207 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/users/team': {
+      id: '/users/team'
+      path: '/team'
+      fullPath: '/users/team'
+      preLoaderRoute: typeof UsersTeamRouteImport
+      parentRoute: typeof UsersRoute
+    }
+    '/users/security': {
+      id: '/users/security'
+      path: '/security'
+      fullPath: '/users/security'
+      preLoaderRoute: typeof UsersSecurityRouteImport
+      parentRoute: typeof UsersRoute
+    }
+    '/reporting/summary': {
+      id: '/reporting/summary'
+      path: '/summary'
+      fullPath: '/reporting/summary'
+      preLoaderRoute: typeof ReportingSummaryRouteImport
+      parentRoute: typeof ReportingRoute
+    }
+    '/reporting/export': {
+      id: '/reporting/export'
+      path: '/export'
+      fullPath: '/reporting/export'
+      preLoaderRoute: typeof ReportingExportRouteImport
+      parentRoute: typeof ReportingRoute
+    }
+    '/reporting/discrepancy': {
+      id: '/reporting/discrepancy'
+      path: '/discrepancy'
+      fullPath: '/reporting/discrepancy'
+      preLoaderRoute: typeof ReportingDiscrepancyRouteImport
+      parentRoute: typeof ReportingRoute
+    }
+    '/ingestion/upload': {
+      id: '/ingestion/upload'
+      path: '/upload'
+      fullPath: '/ingestion/upload'
+      preLoaderRoute: typeof IngestionUploadRouteImport
+      parentRoute: typeof IngestionRoute
+    }
+    '/ingestion/ocr': {
+      id: '/ingestion/ocr'
+      path: '/ocr'
+      fullPath: '/ingestion/ocr'
+      preLoaderRoute: typeof IngestionOcrRouteImport
+      parentRoute: typeof IngestionRoute
+    }
+    '/extraction/technical': {
+      id: '/extraction/technical'
+      path: '/technical'
+      fullPath: '/extraction/technical'
+      preLoaderRoute: typeof ExtractionTechnicalRouteImport
+      parentRoute: typeof ExtractionRoute
+    }
+    '/extraction/confidence': {
+      id: '/extraction/confidence'
+      path: '/confidence'
+      fullPath: '/extraction/confidence'
+      preLoaderRoute: typeof ExtractionConfidenceRouteImport
+      parentRoute: typeof ExtractionRoute
+    }
+    '/extraction/commercial': {
+      id: '/extraction/commercial'
+      path: '/commercial'
+      fullPath: '/extraction/commercial'
+      preLoaderRoute: typeof ExtractionCommercialRouteImport
+      parentRoute: typeof ExtractionRoute
+    }
+    '/clauses/identification': {
+      id: '/clauses/identification'
+      path: '/identification'
+      fullPath: '/clauses/identification'
+      preLoaderRoute: typeof ClausesIdentificationRouteImport
+      parentRoute: typeof ClausesRoute
+    }
+    '/clauses/classification': {
+      id: '/clauses/classification'
+      path: '/classification'
+      fullPath: '/clauses/classification'
+      preLoaderRoute: typeof ClausesClassificationRouteImport
+      parentRoute: typeof ClausesRoute
+    }
+    '/chat/summarize': {
+      id: '/chat/summarize'
+      path: '/summarize'
+      fullPath: '/chat/summarize'
+      preLoaderRoute: typeof ChatSummarizeRouteImport
+      parentRoute: typeof ChatRoute
+    }
+    '/chat/query': {
+      id: '/chat/query'
+      path: '/query'
+      fullPath: '/chat/query'
+      preLoaderRoute: typeof ChatQueryRouteImport
+      parentRoute: typeof ChatRoute
+    }
+    '/chat/assistant': {
+      id: '/chat/assistant'
+      path: '/assistant'
+      fullPath: '/chat/assistant'
+      preLoaderRoute: typeof ChatAssistantRouteImport
+      parentRoute: typeof ChatRoute
+    }
   }
 }
 
+interface ChatRouteChildren {
+  ChatAssistantRoute: typeof ChatAssistantRoute
+  ChatQueryRoute: typeof ChatQueryRoute
+  ChatSummarizeRoute: typeof ChatSummarizeRoute
+}
+
+const ChatRouteChildren: ChatRouteChildren = {
+  ChatAssistantRoute: ChatAssistantRoute,
+  ChatQueryRoute: ChatQueryRoute,
+  ChatSummarizeRoute: ChatSummarizeRoute,
+}
+
+const ChatRouteWithChildren = ChatRoute._addFileChildren(ChatRouteChildren)
+
+interface ClausesRouteChildren {
+  ClausesClassificationRoute: typeof ClausesClassificationRoute
+  ClausesIdentificationRoute: typeof ClausesIdentificationRoute
+}
+
+const ClausesRouteChildren: ClausesRouteChildren = {
+  ClausesClassificationRoute: ClausesClassificationRoute,
+  ClausesIdentificationRoute: ClausesIdentificationRoute,
+}
+
+const ClausesRouteWithChildren =
+  ClausesRoute._addFileChildren(ClausesRouteChildren)
+
+interface ExtractionRouteChildren {
+  ExtractionCommercialRoute: typeof ExtractionCommercialRoute
+  ExtractionConfidenceRoute: typeof ExtractionConfidenceRoute
+  ExtractionTechnicalRoute: typeof ExtractionTechnicalRoute
+}
+
+const ExtractionRouteChildren: ExtractionRouteChildren = {
+  ExtractionCommercialRoute: ExtractionCommercialRoute,
+  ExtractionConfidenceRoute: ExtractionConfidenceRoute,
+  ExtractionTechnicalRoute: ExtractionTechnicalRoute,
+}
+
+const ExtractionRouteWithChildren = ExtractionRoute._addFileChildren(
+  ExtractionRouteChildren,
+)
+
+interface IngestionRouteChildren {
+  IngestionOcrRoute: typeof IngestionOcrRoute
+  IngestionUploadRoute: typeof IngestionUploadRoute
+}
+
+const IngestionRouteChildren: IngestionRouteChildren = {
+  IngestionOcrRoute: IngestionOcrRoute,
+  IngestionUploadRoute: IngestionUploadRoute,
+}
+
+const IngestionRouteWithChildren = IngestionRoute._addFileChildren(
+  IngestionRouteChildren,
+)
+
+interface ReportingRouteChildren {
+  ReportingDiscrepancyRoute: typeof ReportingDiscrepancyRoute
+  ReportingExportRoute: typeof ReportingExportRoute
+  ReportingSummaryRoute: typeof ReportingSummaryRoute
+}
+
+const ReportingRouteChildren: ReportingRouteChildren = {
+  ReportingDiscrepancyRoute: ReportingDiscrepancyRoute,
+  ReportingExportRoute: ReportingExportRoute,
+  ReportingSummaryRoute: ReportingSummaryRoute,
+}
+
+const ReportingRouteWithChildren = ReportingRoute._addFileChildren(
+  ReportingRouteChildren,
+)
+
+interface UsersRouteChildren {
+  UsersSecurityRoute: typeof UsersSecurityRoute
+  UsersTeamRoute: typeof UsersTeamRoute
+}
+
+const UsersRouteChildren: UsersRouteChildren = {
+  UsersSecurityRoute: UsersSecurityRoute,
+  UsersTeamRoute: UsersTeamRoute,
+}
+
+const UsersRouteWithChildren = UsersRoute._addFileChildren(UsersRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  ChatRoute: ChatRoute,
-  ClausesRoute: ClausesRoute,
-  ExtractionRoute: ExtractionRoute,
-  IngestionRoute: IngestionRoute,
-  ReportingRoute: ReportingRoute,
-  UsersRoute: UsersRoute,
+  ChatRoute: ChatRouteWithChildren,
+  ClausesRoute: ClausesRouteWithChildren,
+  ExtractionRoute: ExtractionRouteWithChildren,
+  IngestionRoute: IngestionRouteWithChildren,
+  ReportingRoute: ReportingRouteWithChildren,
+  UsersRoute: UsersRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

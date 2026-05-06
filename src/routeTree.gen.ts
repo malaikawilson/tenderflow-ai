@@ -16,6 +16,8 @@ import { Route as ExtractionRouteImport } from './routes/extraction'
 import { Route as ClausesRouteImport } from './routes/clauses'
 import { Route as ChatRouteImport } from './routes/chat'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as IngestionUploadRouteImport } from './routes/ingestion.upload'
+import { Route as IngestionOcrRouteImport } from './routes/ingestion.ocr'
 
 const UsersRoute = UsersRouteImport.update({
   id: '/users',
@@ -52,24 +54,38 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const IngestionUploadRoute = IngestionUploadRouteImport.update({
+  id: '/upload',
+  path: '/upload',
+  getParentRoute: () => IngestionRoute,
+} as any)
+const IngestionOcrRoute = IngestionOcrRouteImport.update({
+  id: '/ocr',
+  path: '/ocr',
+  getParentRoute: () => IngestionRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/chat': typeof ChatRoute
   '/clauses': typeof ClausesRoute
   '/extraction': typeof ExtractionRoute
-  '/ingestion': typeof IngestionRoute
+  '/ingestion': typeof IngestionRouteWithChildren
   '/reporting': typeof ReportingRoute
   '/users': typeof UsersRoute
+  '/ingestion/ocr': typeof IngestionOcrRoute
+  '/ingestion/upload': typeof IngestionUploadRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/chat': typeof ChatRoute
   '/clauses': typeof ClausesRoute
   '/extraction': typeof ExtractionRoute
-  '/ingestion': typeof IngestionRoute
+  '/ingestion': typeof IngestionRouteWithChildren
   '/reporting': typeof ReportingRoute
   '/users': typeof UsersRoute
+  '/ingestion/ocr': typeof IngestionOcrRoute
+  '/ingestion/upload': typeof IngestionUploadRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -77,9 +93,11 @@ export interface FileRoutesById {
   '/chat': typeof ChatRoute
   '/clauses': typeof ClausesRoute
   '/extraction': typeof ExtractionRoute
-  '/ingestion': typeof IngestionRoute
+  '/ingestion': typeof IngestionRouteWithChildren
   '/reporting': typeof ReportingRoute
   '/users': typeof UsersRoute
+  '/ingestion/ocr': typeof IngestionOcrRoute
+  '/ingestion/upload': typeof IngestionUploadRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -91,6 +109,8 @@ export interface FileRouteTypes {
     | '/ingestion'
     | '/reporting'
     | '/users'
+    | '/ingestion/ocr'
+    | '/ingestion/upload'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -100,6 +120,8 @@ export interface FileRouteTypes {
     | '/ingestion'
     | '/reporting'
     | '/users'
+    | '/ingestion/ocr'
+    | '/ingestion/upload'
   id:
     | '__root__'
     | '/'
@@ -109,6 +131,8 @@ export interface FileRouteTypes {
     | '/ingestion'
     | '/reporting'
     | '/users'
+    | '/ingestion/ocr'
+    | '/ingestion/upload'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -116,7 +140,7 @@ export interface RootRouteChildren {
   ChatRoute: typeof ChatRoute
   ClausesRoute: typeof ClausesRoute
   ExtractionRoute: typeof ExtractionRoute
-  IngestionRoute: typeof IngestionRoute
+  IngestionRoute: typeof IngestionRouteWithChildren
   ReportingRoute: typeof ReportingRoute
   UsersRoute: typeof UsersRoute
 }
@@ -172,15 +196,43 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ingestion/upload': {
+      id: '/ingestion/upload'
+      path: '/upload'
+      fullPath: '/ingestion/upload'
+      preLoaderRoute: typeof IngestionUploadRouteImport
+      parentRoute: typeof IngestionRoute
+    }
+    '/ingestion/ocr': {
+      id: '/ingestion/ocr'
+      path: '/ocr'
+      fullPath: '/ingestion/ocr'
+      preLoaderRoute: typeof IngestionOcrRouteImport
+      parentRoute: typeof IngestionRoute
+    }
   }
 }
+
+interface IngestionRouteChildren {
+  IngestionOcrRoute: typeof IngestionOcrRoute
+  IngestionUploadRoute: typeof IngestionUploadRoute
+}
+
+const IngestionRouteChildren: IngestionRouteChildren = {
+  IngestionOcrRoute: IngestionOcrRoute,
+  IngestionUploadRoute: IngestionUploadRoute,
+}
+
+const IngestionRouteWithChildren = IngestionRoute._addFileChildren(
+  IngestionRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ChatRoute: ChatRoute,
   ClausesRoute: ClausesRoute,
   ExtractionRoute: ExtractionRoute,
-  IngestionRoute: IngestionRoute,
+  IngestionRoute: IngestionRouteWithChildren,
   ReportingRoute: ReportingRoute,
   UsersRoute: UsersRoute,
 }

@@ -1,5 +1,3 @@
-import { Link } from "@tanstack/react-router";
-
 export const ingestionSubnav = [
   { to: "/ingestion/upload", label: "File Upload & Management" },
   { to: "/ingestion/ocr", label: "OCR & Parsing" },
@@ -32,6 +30,3 @@ export const usersSubnav = [
   { to: "/users/team", label: "Team & Roles" },
   { to: "/users/security", label: "Authentication & Security" },
 ];
-
-// re-export Link to avoid unused import warnings if needed
-export { Link };

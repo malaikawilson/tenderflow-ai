@@ -9,8 +9,44 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as UsersRouteImport } from './routes/users'
+import { Route as ReportingRouteImport } from './routes/reporting'
+import { Route as IngestionRouteImport } from './routes/ingestion'
+import { Route as ExtractionRouteImport } from './routes/extraction'
+import { Route as ClausesRouteImport } from './routes/clauses'
+import { Route as ChatRouteImport } from './routes/chat'
 import { Route as IndexRouteImport } from './routes/index'
 
+const UsersRoute = UsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReportingRoute = ReportingRouteImport.update({
+  id: '/reporting',
+  path: '/reporting',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IngestionRoute = IngestionRouteImport.update({
+  id: '/ingestion',
+  path: '/ingestion',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExtractionRoute = ExtractionRouteImport.update({
+  id: '/extraction',
+  path: '/extraction',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ClausesRoute = ClausesRouteImport.update({
+  id: '/clauses',
+  path: '/clauses',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChatRoute = ChatRouteImport.update({
+  id: '/chat',
+  path: '/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -19,28 +55,116 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/chat': typeof ChatRoute
+  '/clauses': typeof ClausesRoute
+  '/extraction': typeof ExtractionRoute
+  '/ingestion': typeof IngestionRoute
+  '/reporting': typeof ReportingRoute
+  '/users': typeof UsersRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/chat': typeof ChatRoute
+  '/clauses': typeof ClausesRoute
+  '/extraction': typeof ExtractionRoute
+  '/ingestion': typeof IngestionRoute
+  '/reporting': typeof ReportingRoute
+  '/users': typeof UsersRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/chat': typeof ChatRoute
+  '/clauses': typeof ClausesRoute
+  '/extraction': typeof ExtractionRoute
+  '/ingestion': typeof IngestionRoute
+  '/reporting': typeof ReportingRoute
+  '/users': typeof UsersRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/chat'
+    | '/clauses'
+    | '/extraction'
+    | '/ingestion'
+    | '/reporting'
+    | '/users'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/chat'
+    | '/clauses'
+    | '/extraction'
+    | '/ingestion'
+    | '/reporting'
+    | '/users'
+  id:
+    | '__root__'
+    | '/'
+    | '/chat'
+    | '/clauses'
+    | '/extraction'
+    | '/ingestion'
+    | '/reporting'
+    | '/users'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ChatRoute: typeof ChatRoute
+  ClausesRoute: typeof ClausesRoute
+  ExtractionRoute: typeof ExtractionRoute
+  IngestionRoute: typeof IngestionRoute
+  ReportingRoute: typeof ReportingRoute
+  UsersRoute: typeof UsersRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/users': {
+      id: '/users'
+      path: '/users'
+      fullPath: '/users'
+      preLoaderRoute: typeof UsersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reporting': {
+      id: '/reporting'
+      path: '/reporting'
+      fullPath: '/reporting'
+      preLoaderRoute: typeof ReportingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ingestion': {
+      id: '/ingestion'
+      path: '/ingestion'
+      fullPath: '/ingestion'
+      preLoaderRoute: typeof IngestionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/extraction': {
+      id: '/extraction'
+      path: '/extraction'
+      fullPath: '/extraction'
+      preLoaderRoute: typeof ExtractionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/clauses': {
+      id: '/clauses'
+      path: '/clauses'
+      fullPath: '/clauses'
+      preLoaderRoute: typeof ClausesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/chat': {
+      id: '/chat'
+      path: '/chat'
+      fullPath: '/chat'
+      preLoaderRoute: typeof ChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -53,6 +177,12 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ChatRoute: ChatRoute,
+  ClausesRoute: ClausesRoute,
+  ExtractionRoute: ExtractionRoute,
+  IngestionRoute: IngestionRoute,
+  ReportingRoute: ReportingRoute,
+  UsersRoute: UsersRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -18,6 +18,11 @@ import { Route as ChatRouteImport } from './routes/chat'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as IngestionUploadRouteImport } from './routes/ingestion.upload'
 import { Route as IngestionOcrRouteImport } from './routes/ingestion.ocr'
+import { Route as ExtractionTechnicalRouteImport } from './routes/extraction.technical'
+import { Route as ExtractionConfidenceRouteImport } from './routes/extraction.confidence'
+import { Route as ExtractionCommercialRouteImport } from './routes/extraction.commercial'
+import { Route as ClausesIdentificationRouteImport } from './routes/clauses.identification'
+import { Route as ClausesClassificationRouteImport } from './routes/clauses.classification'
 
 const UsersRoute = UsersRouteImport.update({
   id: '/users',
@@ -64,26 +69,61 @@ const IngestionOcrRoute = IngestionOcrRouteImport.update({
   path: '/ocr',
   getParentRoute: () => IngestionRoute,
 } as any)
+const ExtractionTechnicalRoute = ExtractionTechnicalRouteImport.update({
+  id: '/technical',
+  path: '/technical',
+  getParentRoute: () => ExtractionRoute,
+} as any)
+const ExtractionConfidenceRoute = ExtractionConfidenceRouteImport.update({
+  id: '/confidence',
+  path: '/confidence',
+  getParentRoute: () => ExtractionRoute,
+} as any)
+const ExtractionCommercialRoute = ExtractionCommercialRouteImport.update({
+  id: '/commercial',
+  path: '/commercial',
+  getParentRoute: () => ExtractionRoute,
+} as any)
+const ClausesIdentificationRoute = ClausesIdentificationRouteImport.update({
+  id: '/identification',
+  path: '/identification',
+  getParentRoute: () => ClausesRoute,
+} as any)
+const ClausesClassificationRoute = ClausesClassificationRouteImport.update({
+  id: '/classification',
+  path: '/classification',
+  getParentRoute: () => ClausesRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/chat': typeof ChatRoute
-  '/clauses': typeof ClausesRoute
-  '/extraction': typeof ExtractionRoute
+  '/clauses': typeof ClausesRouteWithChildren
+  '/extraction': typeof ExtractionRouteWithChildren
   '/ingestion': typeof IngestionRouteWithChildren
   '/reporting': typeof ReportingRoute
   '/users': typeof UsersRoute
+  '/clauses/classification': typeof ClausesClassificationRoute
+  '/clauses/identification': typeof ClausesIdentificationRoute
+  '/extraction/commercial': typeof ExtractionCommercialRoute
+  '/extraction/confidence': typeof ExtractionConfidenceRoute
+  '/extraction/technical': typeof ExtractionTechnicalRoute
   '/ingestion/ocr': typeof IngestionOcrRoute
   '/ingestion/upload': typeof IngestionUploadRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/chat': typeof ChatRoute
-  '/clauses': typeof ClausesRoute
-  '/extraction': typeof ExtractionRoute
+  '/clauses': typeof ClausesRouteWithChildren
+  '/extraction': typeof ExtractionRouteWithChildren
   '/ingestion': typeof IngestionRouteWithChildren
   '/reporting': typeof ReportingRoute
   '/users': typeof UsersRoute
+  '/clauses/classification': typeof ClausesClassificationRoute
+  '/clauses/identification': typeof ClausesIdentificationRoute
+  '/extraction/commercial': typeof ExtractionCommercialRoute
+  '/extraction/confidence': typeof ExtractionConfidenceRoute
+  '/extraction/technical': typeof ExtractionTechnicalRoute
   '/ingestion/ocr': typeof IngestionOcrRoute
   '/ingestion/upload': typeof IngestionUploadRoute
 }
@@ -91,11 +131,16 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/chat': typeof ChatRoute
-  '/clauses': typeof ClausesRoute
-  '/extraction': typeof ExtractionRoute
+  '/clauses': typeof ClausesRouteWithChildren
+  '/extraction': typeof ExtractionRouteWithChildren
   '/ingestion': typeof IngestionRouteWithChildren
   '/reporting': typeof ReportingRoute
   '/users': typeof UsersRoute
+  '/clauses/classification': typeof ClausesClassificationRoute
+  '/clauses/identification': typeof ClausesIdentificationRoute
+  '/extraction/commercial': typeof ExtractionCommercialRoute
+  '/extraction/confidence': typeof ExtractionConfidenceRoute
+  '/extraction/technical': typeof ExtractionTechnicalRoute
   '/ingestion/ocr': typeof IngestionOcrRoute
   '/ingestion/upload': typeof IngestionUploadRoute
 }
@@ -109,6 +154,11 @@ export interface FileRouteTypes {
     | '/ingestion'
     | '/reporting'
     | '/users'
+    | '/clauses/classification'
+    | '/clauses/identification'
+    | '/extraction/commercial'
+    | '/extraction/confidence'
+    | '/extraction/technical'
     | '/ingestion/ocr'
     | '/ingestion/upload'
   fileRoutesByTo: FileRoutesByTo
@@ -120,6 +170,11 @@ export interface FileRouteTypes {
     | '/ingestion'
     | '/reporting'
     | '/users'
+    | '/clauses/classification'
+    | '/clauses/identification'
+    | '/extraction/commercial'
+    | '/extraction/confidence'
+    | '/extraction/technical'
     | '/ingestion/ocr'
     | '/ingestion/upload'
   id:
@@ -131,6 +186,11 @@ export interface FileRouteTypes {
     | '/ingestion'
     | '/reporting'
     | '/users'
+    | '/clauses/classification'
+    | '/clauses/identification'
+    | '/extraction/commercial'
+    | '/extraction/confidence'
+    | '/extraction/technical'
     | '/ingestion/ocr'
     | '/ingestion/upload'
   fileRoutesById: FileRoutesById
@@ -138,8 +198,8 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ChatRoute: typeof ChatRoute
-  ClausesRoute: typeof ClausesRoute
-  ExtractionRoute: typeof ExtractionRoute
+  ClausesRoute: typeof ClausesRouteWithChildren
+  ExtractionRoute: typeof ExtractionRouteWithChildren
   IngestionRoute: typeof IngestionRouteWithChildren
   ReportingRoute: typeof ReportingRoute
   UsersRoute: typeof UsersRoute
@@ -210,8 +270,72 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IngestionOcrRouteImport
       parentRoute: typeof IngestionRoute
     }
+    '/extraction/technical': {
+      id: '/extraction/technical'
+      path: '/technical'
+      fullPath: '/extraction/technical'
+      preLoaderRoute: typeof ExtractionTechnicalRouteImport
+      parentRoute: typeof ExtractionRoute
+    }
+    '/extraction/confidence': {
+      id: '/extraction/confidence'
+      path: '/confidence'
+      fullPath: '/extraction/confidence'
+      preLoaderRoute: typeof ExtractionConfidenceRouteImport
+      parentRoute: typeof ExtractionRoute
+    }
+    '/extraction/commercial': {
+      id: '/extraction/commercial'
+      path: '/commercial'
+      fullPath: '/extraction/commercial'
+      preLoaderRoute: typeof ExtractionCommercialRouteImport
+      parentRoute: typeof ExtractionRoute
+    }
+    '/clauses/identification': {
+      id: '/clauses/identification'
+      path: '/identification'
+      fullPath: '/clauses/identification'
+      preLoaderRoute: typeof ClausesIdentificationRouteImport
+      parentRoute: typeof ClausesRoute
+    }
+    '/clauses/classification': {
+      id: '/clauses/classification'
+      path: '/classification'
+      fullPath: '/clauses/classification'
+      preLoaderRoute: typeof ClausesClassificationRouteImport
+      parentRoute: typeof ClausesRoute
+    }
   }
 }
+
+interface ClausesRouteChildren {
+  ClausesClassificationRoute: typeof ClausesClassificationRoute
+  ClausesIdentificationRoute: typeof ClausesIdentificationRoute
+}
+
+const ClausesRouteChildren: ClausesRouteChildren = {
+  ClausesClassificationRoute: ClausesClassificationRoute,
+  ClausesIdentificationRoute: ClausesIdentificationRoute,
+}
+
+const ClausesRouteWithChildren =
+  ClausesRoute._addFileChildren(ClausesRouteChildren)
+
+interface ExtractionRouteChildren {
+  ExtractionCommercialRoute: typeof ExtractionCommercialRoute
+  ExtractionConfidenceRoute: typeof ExtractionConfidenceRoute
+  ExtractionTechnicalRoute: typeof ExtractionTechnicalRoute
+}
+
+const ExtractionRouteChildren: ExtractionRouteChildren = {
+  ExtractionCommercialRoute: ExtractionCommercialRoute,
+  ExtractionConfidenceRoute: ExtractionConfidenceRoute,
+  ExtractionTechnicalRoute: ExtractionTechnicalRoute,
+}
+
+const ExtractionRouteWithChildren = ExtractionRoute._addFileChildren(
+  ExtractionRouteChildren,
+)
 
 interface IngestionRouteChildren {
   IngestionOcrRoute: typeof IngestionOcrRoute
@@ -230,8 +354,8 @@ const IngestionRouteWithChildren = IngestionRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ChatRoute: ChatRoute,
-  ClausesRoute: ClausesRoute,
-  ExtractionRoute: ExtractionRoute,
+  ClausesRoute: ClausesRouteWithChildren,
+  ExtractionRoute: ExtractionRouteWithChildren,
   IngestionRoute: IngestionRouteWithChildren,
   ReportingRoute: ReportingRoute,
   UsersRoute: UsersRoute,

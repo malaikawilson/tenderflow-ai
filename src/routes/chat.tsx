@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 
 export const Route = createFileRoute("/chat")({
-  component: Chat;
+  component: Chat,
 });
 
 type Msg = { role: "user" | "ai"; content: string; sources?: { doc: string; page: number; section: string }[] };

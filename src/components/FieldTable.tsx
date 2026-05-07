@@ -27,18 +27,17 @@ export function FieldTable({ rows }: { rows: ExtractedField[] }) {
           </tr>
         </thead>
         <tbody>
-          {rows.map((r) => (
-            <tr key={r.field} className="border-t hover:bg-muted/30 transition-colors">
+          {rows.map((r, i) => (
+            <tr key={`${r.field}-${i}`} className="border-t hover:bg-muted/30 transition-colors">
               <td className="px-4 py-3 font-medium">{r.field}</td>
               <td className="px-4 py-3 text-muted-foreground">{r.value}</td>
               <td className="px-4 py-3 text-right">
                 <Badge variant="secondary" className={confidenceClass(r.confidence)}>
-                  {r.confidence}%
-                  {r.confidence < 85 && <AlertCircle className="h-3 w-3 ml-1" />}
+                  {r.confidence}%{r.confidence < 85 && <AlertCircle className="h-3 w-3 ml-1" />}
                 </Badge>
               </td>
               <td className="px-4 py-3 text-right text-xs text-muted-foreground">
-                p.{r.page ?? Math.floor(Math.random() * 200) + 12}
+                p.{r.page ?? 47}
               </td>
             </tr>
           ))}

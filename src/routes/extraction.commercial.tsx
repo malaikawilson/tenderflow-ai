@@ -1,30 +1,26 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useMemo } from "react";
 import { Download } from "lucide-react";
 import { ModuleShell } from "@/components/ModuleShell";
 import { Button } from "@/components/ui/button";
 import { FieldTable } from "@/components/FieldTable";
 import { extractionSubnav } from "@/lib/subnavs";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useWorkspace } from "@/lib/workspace";
+import { buildCommercialScanSnippet } from "@/lib/simulation";
 
 export const Route = createFileRoute("/extraction/commercial")({
   component: Commercial,
 });
 
-const rows = [
-  { field: "Payment Terms", value: "30% advance, 60% on delivery, 10% after PG", confidence: 94 },
-  { field: "Delivery Schedule", value: "26 weeks ex-works", confidence: 92 },
-  { field: "Delivery Location", value: "DDP Jebel Ali, UAE", confidence: 88 },
-  { field: "Warranty / Guarantee", value: "18 months from commissioning / 24 from despatch", confidence: 90 },
-  { field: "Performance Bond", value: "10% of contract value, valid 24 months", confidence: 88 },
-  { field: "Liquidated Damages (LD)", value: "0.5% per week, max 7.5%", confidence: 96 },
-  { field: "Penalty Clause", value: "Additional 2% for missed FAT milestones", confidence: 79 },
-  { field: "Compliance Standards", value: "NACE MR0175, ASME B73.1, IEC 60079", confidence: 91 },
-  { field: "Regulatory Approvals", value: "ATEX Zone 2, IECEx, EAC", confidence: 86 },
-  { field: "Currency", value: "USD", confidence: 99 },
-  { field: "Validity Period", value: "120 days from bid submission", confidence: 78 },
-  { field: "Insurance Requirements", value: "Marine + 110% replacement cover", confidence: 82 },
-];
-
 function Commercial() {
+  const { commercialFields, activeFileName } = useWorkspace();
+  const label = activeFileName ?? "ADNOC-PMP-2025-0421.pdf";
+  const commercialScan = useMemo(
+    () => buildCommercialScanSnippet(commercialFields, label),
+    [commercialFields, label],
+  );
+
   return (
     <ModuleShell
       eyebrow="Module 02 · AI Data Extraction"
@@ -32,12 +28,36 @@ function Commercial() {
       description="Key commercial terms — payment, delivery, warranty/guarantee, LD, penalty clauses, and compliance/regulatory requirements."
       subnav={extractionSubnav}
       actions={
-        <Button>
+        <Button type="button">
           <Download className="h-4 w-4" /> Export
         </Button>
       }
     >
-      <FieldTable rows={rows} />
+      <div className="grid xl:grid-cols-2 gap-6">
+        <Card className="h-fit">
+          <CardHeader>
+            <CardTitle className="text-base">Original Document Scan</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="rounded-lg border bg-muted/20 p-4 min-h-[540px] flex flex-col gap-3">
+              <div className="text-xs text-muted-foreground">
+                {label} · Page 88 · Dummy scan preview
+              </div>
+              <iframe
+                title="Tender scan preview"
+                src="/sample-tender-scan.html"
+                className="w-full h-[280px] rounded-md border bg-white"
+              />
+              <pre className="flex-1 min-h-[200px] rounded-md border bg-background p-4 text-xs whitespace-pre-wrap font-mono text-muted-foreground overflow-auto">
+                {commercialScan}
+              </pre>
+            </div>
+          </CardContent>
+        </Card>
+        <div>
+          <FieldTable rows={commercialFields} />
+        </div>
+      </div>
     </ModuleShell>
   );
 }

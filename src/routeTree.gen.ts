@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as UsersRouteImport } from './routes/users'
+import { Route as UploadRouteImport } from './routes/upload'
 import { Route as ReportingRouteImport } from './routes/reporting'
 import { Route as IngestionRouteImport } from './routes/ingestion'
 import { Route as ExtractionRouteImport } from './routes/extraction'
@@ -26,6 +27,7 @@ import { Route as IngestionOcrRouteImport } from './routes/ingestion.ocr'
 import { Route as ExtractionTechnicalRouteImport } from './routes/extraction.technical'
 import { Route as ExtractionConfidenceRouteImport } from './routes/extraction.confidence'
 import { Route as ExtractionCommercialRouteImport } from './routes/extraction.commercial'
+import { Route as ExtractionClausesRouteImport } from './routes/extraction.clauses'
 import { Route as ClausesIdentificationRouteImport } from './routes/clauses.identification'
 import { Route as ClausesClassificationRouteImport } from './routes/clauses.classification'
 import { Route as ChatSummarizeRouteImport } from './routes/chat.summarize'
@@ -35,6 +37,11 @@ import { Route as ChatAssistantRouteImport } from './routes/chat.assistant'
 const UsersRoute = UsersRouteImport.update({
   id: '/users',
   path: '/users',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UploadRoute = UploadRouteImport.update({
+  id: '/upload',
+  path: '/upload',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ReportingRoute = ReportingRouteImport.update({
@@ -117,6 +124,11 @@ const ExtractionCommercialRoute = ExtractionCommercialRouteImport.update({
   path: '/commercial',
   getParentRoute: () => ExtractionRoute,
 } as any)
+const ExtractionClausesRoute = ExtractionClausesRouteImport.update({
+  id: '/clauses',
+  path: '/clauses',
+  getParentRoute: () => ExtractionRoute,
+} as any)
 const ClausesIdentificationRoute = ClausesIdentificationRouteImport.update({
   id: '/identification',
   path: '/identification',
@@ -150,12 +162,14 @@ export interface FileRoutesByFullPath {
   '/extraction': typeof ExtractionRouteWithChildren
   '/ingestion': typeof IngestionRouteWithChildren
   '/reporting': typeof ReportingRouteWithChildren
+  '/upload': typeof UploadRoute
   '/users': typeof UsersRouteWithChildren
   '/chat/assistant': typeof ChatAssistantRoute
   '/chat/query': typeof ChatQueryRoute
   '/chat/summarize': typeof ChatSummarizeRoute
   '/clauses/classification': typeof ClausesClassificationRoute
   '/clauses/identification': typeof ClausesIdentificationRoute
+  '/extraction/clauses': typeof ExtractionClausesRoute
   '/extraction/commercial': typeof ExtractionCommercialRoute
   '/extraction/confidence': typeof ExtractionConfidenceRoute
   '/extraction/technical': typeof ExtractionTechnicalRoute
@@ -174,12 +188,14 @@ export interface FileRoutesByTo {
   '/extraction': typeof ExtractionRouteWithChildren
   '/ingestion': typeof IngestionRouteWithChildren
   '/reporting': typeof ReportingRouteWithChildren
+  '/upload': typeof UploadRoute
   '/users': typeof UsersRouteWithChildren
   '/chat/assistant': typeof ChatAssistantRoute
   '/chat/query': typeof ChatQueryRoute
   '/chat/summarize': typeof ChatSummarizeRoute
   '/clauses/classification': typeof ClausesClassificationRoute
   '/clauses/identification': typeof ClausesIdentificationRoute
+  '/extraction/clauses': typeof ExtractionClausesRoute
   '/extraction/commercial': typeof ExtractionCommercialRoute
   '/extraction/confidence': typeof ExtractionConfidenceRoute
   '/extraction/technical': typeof ExtractionTechnicalRoute
@@ -199,12 +215,14 @@ export interface FileRoutesById {
   '/extraction': typeof ExtractionRouteWithChildren
   '/ingestion': typeof IngestionRouteWithChildren
   '/reporting': typeof ReportingRouteWithChildren
+  '/upload': typeof UploadRoute
   '/users': typeof UsersRouteWithChildren
   '/chat/assistant': typeof ChatAssistantRoute
   '/chat/query': typeof ChatQueryRoute
   '/chat/summarize': typeof ChatSummarizeRoute
   '/clauses/classification': typeof ClausesClassificationRoute
   '/clauses/identification': typeof ClausesIdentificationRoute
+  '/extraction/clauses': typeof ExtractionClausesRoute
   '/extraction/commercial': typeof ExtractionCommercialRoute
   '/extraction/confidence': typeof ExtractionConfidenceRoute
   '/extraction/technical': typeof ExtractionTechnicalRoute
@@ -225,12 +243,14 @@ export interface FileRouteTypes {
     | '/extraction'
     | '/ingestion'
     | '/reporting'
+    | '/upload'
     | '/users'
     | '/chat/assistant'
     | '/chat/query'
     | '/chat/summarize'
     | '/clauses/classification'
     | '/clauses/identification'
+    | '/extraction/clauses'
     | '/extraction/commercial'
     | '/extraction/confidence'
     | '/extraction/technical'
@@ -249,12 +269,14 @@ export interface FileRouteTypes {
     | '/extraction'
     | '/ingestion'
     | '/reporting'
+    | '/upload'
     | '/users'
     | '/chat/assistant'
     | '/chat/query'
     | '/chat/summarize'
     | '/clauses/classification'
     | '/clauses/identification'
+    | '/extraction/clauses'
     | '/extraction/commercial'
     | '/extraction/confidence'
     | '/extraction/technical'
@@ -273,12 +295,14 @@ export interface FileRouteTypes {
     | '/extraction'
     | '/ingestion'
     | '/reporting'
+    | '/upload'
     | '/users'
     | '/chat/assistant'
     | '/chat/query'
     | '/chat/summarize'
     | '/clauses/classification'
     | '/clauses/identification'
+    | '/extraction/clauses'
     | '/extraction/commercial'
     | '/extraction/confidence'
     | '/extraction/technical'
@@ -298,6 +322,7 @@ export interface RootRouteChildren {
   ExtractionRoute: typeof ExtractionRouteWithChildren
   IngestionRoute: typeof IngestionRouteWithChildren
   ReportingRoute: typeof ReportingRouteWithChildren
+  UploadRoute: typeof UploadRoute
   UsersRoute: typeof UsersRouteWithChildren
 }
 
@@ -308,6 +333,13 @@ declare module '@tanstack/react-router' {
       path: '/users'
       fullPath: '/users'
       preLoaderRoute: typeof UsersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/upload': {
+      id: '/upload'
+      path: '/upload'
+      fullPath: '/upload'
+      preLoaderRoute: typeof UploadRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/reporting': {
@@ -422,6 +454,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ExtractionCommercialRouteImport
       parentRoute: typeof ExtractionRoute
     }
+    '/extraction/clauses': {
+      id: '/extraction/clauses'
+      path: '/clauses'
+      fullPath: '/extraction/clauses'
+      preLoaderRoute: typeof ExtractionClausesRouteImport
+      parentRoute: typeof ExtractionRoute
+    }
     '/clauses/identification': {
       id: '/clauses/identification'
       path: '/identification'
@@ -488,12 +527,14 @@ const ClausesRouteWithChildren =
   ClausesRoute._addFileChildren(ClausesRouteChildren)
 
 interface ExtractionRouteChildren {
+  ExtractionClausesRoute: typeof ExtractionClausesRoute
   ExtractionCommercialRoute: typeof ExtractionCommercialRoute
   ExtractionConfidenceRoute: typeof ExtractionConfidenceRoute
   ExtractionTechnicalRoute: typeof ExtractionTechnicalRoute
 }
 
 const ExtractionRouteChildren: ExtractionRouteChildren = {
+  ExtractionClausesRoute: ExtractionClausesRoute,
   ExtractionCommercialRoute: ExtractionCommercialRoute,
   ExtractionConfidenceRoute: ExtractionConfidenceRoute,
   ExtractionTechnicalRoute: ExtractionTechnicalRoute,
@@ -552,8 +593,18 @@ const rootRouteChildren: RootRouteChildren = {
   ExtractionRoute: ExtractionRouteWithChildren,
   IngestionRoute: IngestionRouteWithChildren,
   ReportingRoute: ReportingRouteWithChildren,
+  UploadRoute: UploadRoute,
   UsersRoute: UsersRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}

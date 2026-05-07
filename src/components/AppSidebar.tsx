@@ -1,17 +1,16 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
   LayoutDashboard,
-  FileUp,
   Sparkles,
-  FileSearch,
   MessageSquare,
   BarChart3,
-  Users,
   Droplets,
+  LogOut,
 } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -24,23 +23,24 @@ import {
 
 const items = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
-  { title: "Document Ingestion", url: "/ingestion", icon: FileUp },
   { title: "AI Data Extraction", url: "/extraction", icon: Sparkles },
-  { title: "Clause Extraction", url: "/clauses", icon: FileSearch },
   { title: "Conversational AI", url: "/chat", icon: MessageSquare },
   { title: "Reporting", url: "/reporting", icon: BarChart3 },
-  { title: "User Management", url: "/users", icon: Users },
 ];
 
 export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const path = useRouterState({ select: (r) => r.location.pathname });
+  const handleLogout = () => {
+    localStorage.removeItem("pumpiq.authenticated");
+    window.location.href = "/";
+  };
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader className="border-b border-sidebar-border">
-        <Link to="/" className="flex items-center gap-2.5 px-2 py-3">
+      <SidebarHeader className="h-16 border-b border-sidebar-border p-0">
+        <Link to="/" className="h-full flex items-center gap-2.5 px-3">
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-primary shadow-glow">
             <Droplets className="h-5 w-5 text-primary-foreground" />
           </div>
@@ -79,6 +79,18 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <SidebarFooter className="border-t border-sidebar-border">
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton onClick={handleLogout}>
+              <span className="flex items-center gap-3">
+                <LogOut className="h-4 w-4" />
+                {!collapsed && <span>Logout</span>}
+              </span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
     </Sidebar>
   );
 }

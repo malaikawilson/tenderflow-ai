@@ -24,7 +24,7 @@ function Summary() {
     <ModuleShell
       eyebrow="Module 05 · Reporting"
       title="Tender Summary Report"
-      description="Consolidated view of every extracted parameter with section-level confidence — a single pane of quality and completeness."
+      description="Consolidated view of extracted key parameters. Includes confidence scores for each extracted field."
       subnav={reportingSubnav}
     >
       <div className="grid md:grid-cols-4 gap-4 mb-8">
@@ -49,10 +49,14 @@ function Summary() {
               <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
                 <h4 className="font-semibold">{s.section}</h4>
                 <div className="flex items-center gap-3 text-sm">
-                  <span className="text-muted-foreground">{s.complete}/{s.fields} fields</span>
+                  <span className="text-muted-foreground">
+                    {s.complete}/{s.fields} fields
+                  </span>
                   <Badge
                     variant="secondary"
-                    className={s.conf >= 90 ? "bg-success/10 text-success" : "bg-warning/15 text-warning"}
+                    className={
+                      s.conf >= 90 ? "bg-success/10 text-success" : "bg-warning/15 text-warning"
+                    }
                   >
                     {s.conf}% conf.
                   </Badge>

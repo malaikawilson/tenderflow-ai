@@ -1,5 +1,7 @@
 import { Outlet, createRootRoute, HeadContent, Scripts, Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { AppLayout } from "@/components/AppLayout";
+import { AuthEntry } from "@/components/AuthEntry";
 import appCss from "../styles.css?url";
 
 function NotFoundComponent() {
@@ -62,7 +64,27 @@ function RootShell({ children }: { children: React.ReactNode }) {
 }
 
 function RootComponent() {
-  return (
-    <AppLayout />
-  );
+  const [ready, setReady] = useState(false);
+  const [authenticated, setAuthenticated] = useState(false);
+
+  useEffect(() => {
+    try {
+      const isAuthenticated = localStorage.getItem("pumpiq.authenticated") === "true";
+      setAuthenticated(isAuthenticated);
+    } catch {
+      setAuthenticated(false);
+    } finally {
+      setReady(true);
+    }
+  }, []);
+
+  if (!ready) {
+    return <div className="min-h-screen bg-background" />;
+  }
+
+  if (!authenticated) {
+    return <AuthEntry onAuthenticated={() => setAuthenticated(true)} />;
+  }
+
+  return <AppLayout />;
 }

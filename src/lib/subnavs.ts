@@ -7,6 +7,7 @@ export const extractionSubnav = [
   { to: "/extraction/technical", label: "Technical Data" },
   { to: "/extraction/commercial", label: "Commercial Data" },
   { to: "/extraction/confidence", label: "Confidence Scoring" },
+  { to: "/extraction/clauses", label: "Clause Insights" },
 ];
 
 export const clausesSubnav = [

@@ -1,49 +1,150 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useMemo, useRef, useState } from "react";
 import {
   FileUp,
-  Sparkles,
-  FileSearch,
   MessageSquare,
-  BarChart3,
-  TrendingUp,
-  CheckCircle2,
-  AlertTriangle,
-  Clock,
-  ArrowUpRight,
+  ChevronLeft,
+  ChevronRight,
+  MoreVertical,
+  Search,
   Droplets,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useWorkspace } from "@/lib/workspace";
+import { tenderLabelFromFileName } from "@/lib/simulation";
 
 export const Route = createFileRoute("/")({
   component: Dashboard,
 });
 
-const stats = [
-  { label: "Tenders Processed", value: "248", delta: "+12%", icon: FileUp },
-  { label: "Avg. Confidence", value: "94.2%", delta: "+2.1%", icon: TrendingUp },
-  { label: "Clauses Extracted", value: "5,392", delta: "+318", icon: FileSearch },
-  { label: "Pending Review", value: "17", delta: "-4", icon: AlertTriangle },
+const seedDashboardRows = [
+  {
+    tender: "ADNOC-PMP-2025-0421",
+    client: "ADNOC Onshore",
+    owner: "Aarav Mehta",
+    status: "Done",
+    clauseType: "Commercial",
+    confidence: 96,
+    pages: 184,
+  },
+  {
+    tender: "Saudi Aramco LSTK-9912",
+    client: "Saudi Aramco",
+    owner: "Priya Iyer",
+    status: "In process",
+    clauseType: "Technical",
+    confidence: 78,
+    pages: 412,
+  },
+  {
+    tender: "ONGC Mumbai High-3318",
+    client: "ONGC",
+    owner: "Rahul Kapoor",
+    status: "Done",
+    clauseType: "Legal",
+    confidence: 88,
+    pages: 96,
+  },
+  {
+    tender: "QatarEnergy NFE-2231",
+    client: "QatarEnergy",
+    owner: "Sara Khan",
+    status: "In process",
+    clauseType: "Commercial",
+    confidence: 83,
+    pages: 268,
+  },
 ];
 
-const recentTenders = [
-  { name: "ADNOC-PMP-2025-0421", client: "ADNOC Onshore", status: "Extracted", confidence: 96, pages: 184 },
-  { name: "Saudi Aramco LSTK-9912", client: "Saudi Aramco", status: "Processing", confidence: 78, pages: 412 },
-  { name: "ONGC Mumbai High-3318", client: "ONGC", status: "Review", confidence: 71, pages: 96 },
-  { name: "QatarEnergy NFE-2231", client: "QatarEnergy", status: "Extracted", confidence: 92, pages: 268 },
-];
-
-const modules = [
-  { title: "Document Ingestion", desc: "Upload PDFs, Word, Excel & scanned files", icon: FileUp, url: "/ingestion", color: "from-blue-500 to-blue-700" },
-  { title: "AI Data Extraction", desc: "Pump specs, materials, standards, motors", icon: Sparkles, url: "/extraction", color: "from-cyan-500 to-blue-600" },
-  { title: "Clause Extraction", desc: "Payment, warranty, LD & penalty clauses", icon: FileSearch, url: "/clauses", color: "from-indigo-500 to-blue-700" },
-  { title: "Conversational AI", desc: "Ask anything about the tender", icon: MessageSquare, url: "/chat", color: "from-sky-500 to-blue-600" },
-  { title: "Reporting", desc: "Summary, discrepancy & exports", icon: BarChart3, url: "/reporting", color: "from-blue-600 to-indigo-700" },
-];
+function avgConfidence(fields: { confidence: number }[]) {
+  if (!fields.length) return 92;
+  return Math.round(fields.reduce((a, b) => a + b.confidence, 0) / fields.length);
+}
 
 function Dashboard() {
+  const fileRef = useRef<HTMLInputElement>(null);
+  const { uploads, technicalFields, addFilesFromDashboard } = useWorkspace();
+  const [query, setQuery] = useState("");
+
+  const userRows = useMemo(
+    () =>
+      uploads
+        .filter((u) => u.done)
+        .map((u) => ({
+          tender: tenderLabelFromFileName(u.name),
+          client: "Your workspace",
+          owner: "You",
+          status: "Done",
+          clauseType: "Extracted",
+          confidence: avgConfidence(technicalFields),
+          pages: 96 + (u.name.length % 340),
+        })),
+    [uploads, technicalFields],
+  );
+
+  const tableRows = useMemo(() => {
+    const seen = new Set(userRows.map((r) => r.tender));
+    const rest = seedDashboardRows.filter((r) => !seen.has(r.tender));
+    return [...userRows, ...rest];
+  }, [userRows]);
+
+  const heroLive = useMemo(() => {
+    const m = Object.fromEntries(technicalFields.map((x) => [x.field, x])) as Record<
+      string,
+      { value: string; confidence: number }
+    >;
+    return [
+      {
+        k: "Capacity",
+        v: m["Flow Rate (Capacity)"]?.value ?? "850 m³/h",
+        c: m["Flow Rate (Capacity)"]?.confidence ?? 98,
+      },
+      {
+        k: "Total Head",
+        v: m["Total Differential Head"]?.value ?? "245 m",
+        c: m["Total Differential Head"]?.confidence ?? 96,
+      },
+      {
+        k: "Material (Casing)",
+        v: m["Casing Material"]?.value ?? "Duplex SS A890",
+        c: m["Casing Material"]?.confidence ?? 92,
+      },
+      {
+        k: "Standard",
+        v: m["Applicable Standard"]?.value ?? "API 610 12th Ed.",
+        c: m["Applicable Standard"]?.confidence ?? 99,
+      },
+      {
+        k: "Motor Rating",
+        v:
+          m["Power (Rated)"] && m["Voltage"]
+            ? `${m["Power (Rated)"].value} / ${m["Voltage"].value}`
+            : "1250 kW / 11kV",
+        c: m["Power (Rated)"]?.confidence ?? 87,
+      },
+      { k: "NPSHr", v: m["NPSHr"]?.value ?? "4.8 m", c: m["NPSHr"]?.confidence ?? 81 },
+    ];
+  }, [technicalFields]);
+
+  const filteredRows = useMemo(() => {
+    const term = query.trim().toLowerCase();
+    if (!term) return tableRows;
+    return tableRows.filter((row) =>
+      [row.tender, row.client, row.owner, row.status, row.clauseType]
+        .join(" ")
+        .toLowerCase()
+        .includes(term),
+    );
+  }, [query, tableRows]);
+
+  const onDashFiles = (list: FileList | null) => {
+    if (!list?.length) return;
+    addFilesFromDashboard(list);
+  };
+
   return (
     <div className="relative">
       <div className="absolute inset-0 bg-gradient-hero pointer-events-none" />
@@ -57,19 +158,36 @@ function Dashboard() {
                 <Droplets className="h-3 w-3 mr-1.5" /> Oil & Gas Pump Intelligence
               </Badge>
               <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
-                Turn 400-page tenders into{" "}
-                <span className="text-gradient">structured data</span> in minutes.
+                Turn 400-page tenders into <span className="text-gradient">structured data</span> in
+                minutes.
               </h1>
               <p className="text-muted-foreground text-lg mb-6 max-w-xl">
                 AI-powered extraction of pump specifications, commercial terms, and contractual
                 clauses — with confidence scores and discrepancy flags built-in.
               </p>
+              <input
+                ref={fileRef}
+                type="file"
+                className="hidden"
+                multiple
+                accept=".pdf,.doc,.docx,.xlsx,.xls,.png,.jpg,.jpeg,.tiff"
+                onChange={(e) => onDashFiles(e.target.files)}
+              />
               <div className="flex flex-wrap gap-3">
                 <Button asChild size="lg" className="bg-gradient-primary shadow-glow">
-                  <Link to="/ingestion">
+                  <Link to="/upload">
                     <FileUp className="h-4 w-4" />
                     Upload Tender
                   </Link>
+                </Button>
+                <Button
+                  type="button"
+                  size="lg"
+                  variant="secondary"
+                  onClick={() => fileRef.current?.click()}
+                >
+                  <FileUp className="h-4 w-4" />
+                  Quick upload
                 </Button>
                 <Button asChild size="lg" variant="outline">
                   <Link to="/chat">
@@ -89,15 +207,11 @@ function Dashboard() {
                       <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" /> Active
                     </span>
                   </div>
-                  {[
-                    { k: "Capacity", v: "850 m³/h", c: 98 },
-                    { k: "Total Head", v: "245 m", c: 96 },
-                    { k: "Material (Casing)", v: "Duplex SS A890", c: 92 },
-                    { k: "Standard", v: "API 610 12th Ed.", c: 99 },
-                    { k: "Motor Rating", v: "1250 kW / 11kV", c: 87 },
-                    { k: "NPSHr", v: "4.8 m", c: 81 },
-                  ].map((row) => (
-                    <div key={row.k} className="flex items-center justify-between py-2 border-b last:border-0">
+                  {heroLive.map((row) => (
+                    <div
+                      key={row.k}
+                      className="flex items-center justify-between py-2 border-b last:border-0"
+                    >
                       <div>
                         <p className="text-xs text-muted-foreground">{row.k}</p>
                         <p className="text-sm font-medium">{row.v}</p>
@@ -108,8 +222,8 @@ function Dashboard() {
                           row.c >= 90
                             ? "bg-success/10 text-success"
                             : row.c >= 80
-                            ? "bg-warning/15 text-warning"
-                            : "bg-destructive/10 text-destructive"
+                              ? "bg-warning/15 text-warning"
+                              : "bg-destructive/10 text-destructive"
                         }
                       >
                         {row.c}%
@@ -122,94 +236,95 @@ function Dashboard() {
           </div>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          {stats.map((s) => (
-            <Card key={s.label} className="border bg-card/80 backdrop-blur-sm hover:shadow-elegant transition-shadow">
-              <CardContent className="p-5">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <s.icon className="h-4 w-4 text-primary" />
-                  </div>
-                  <span className="text-xs font-medium text-success">{s.delta}</span>
-                </div>
-                <p className="text-2xl font-bold">{s.value}</p>
-                <p className="text-xs text-muted-foreground mt-1">{s.label}</p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        {/* Modules grid */}
-        <div className="grid lg:grid-cols-3 gap-6 mb-8">
-          <div className="lg:col-span-2">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold">Modules</h2>
-              <span className="text-xs text-muted-foreground">6 active</span>
+        <Card className="border mb-8">
+          <CardHeader>
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+              <CardTitle className="text-base">Extracted Tenders</CardTitle>
+              <div className="relative w-full md:w-80">
+                <Search className="h-4 w-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" />
+                <Input
+                  placeholder="Search tender, client, owner..."
+                  className="pl-9"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                />
+              </div>
             </div>
-            <div className="grid sm:grid-cols-2 gap-4">
-              {modules.map((m) => (
-                <Link key={m.title} to={m.url} className="group">
-                  <Card className="h-full border hover:border-primary/40 transition-all hover:shadow-elegant">
-                    <CardContent className="p-5">
-                      <div className={`h-10 w-10 rounded-lg bg-gradient-to-br ${m.color} flex items-center justify-center mb-4 shadow-md`}>
-                        <m.icon className="h-5 w-5 text-white" />
-                      </div>
-                      <div className="flex items-start justify-between gap-2">
-                        <div>
-                          <h3 className="font-semibold mb-1">{m.title}</h3>
-                          <p className="text-sm text-muted-foreground">{m.desc}</p>
-                        </div>
-                        <ArrowUpRight className="h-4 w-4 text-muted-foreground group-hover:text-primary group-hover:-translate-y-0.5 group-hover:translate-x-0.5 transition-transform shrink-0" />
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
-              ))}
+          </CardHeader>
+          <CardContent className="p-0">
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[880px] text-sm">
+                <thead>
+                  <tr className="border-b bg-muted/30 text-muted-foreground">
+                    <th className="text-left font-medium px-4 py-3">Tender</th>
+                    <th className="text-left font-medium px-4 py-3">Client</th>
+                    <th className="text-left font-medium px-4 py-3">Owner</th>
+                    <th className="text-left font-medium px-4 py-3">Status</th>
+                    <th className="text-left font-medium px-4 py-3">Clause Type</th>
+                    <th className="text-left font-medium px-4 py-3">Confidence</th>
+                    <th className="text-left font-medium px-4 py-3">Pages</th>
+                    <th className="text-left font-medium px-4 py-3 w-12" />
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredRows.map((row) => (
+                    <tr key={row.tender} className="border-b last:border-0 hover:bg-muted/20">
+                      <td className="px-4 py-3 font-medium">{row.tender}</td>
+                      <td className="px-4 py-3 text-muted-foreground">{row.client}</td>
+                      <td className="px-4 py-3 text-muted-foreground">{row.owner}</td>
+                      <td className="px-4 py-3">
+                        <Badge
+                          variant="secondary"
+                          className={
+                            row.status === "Done"
+                              ? "bg-success/10 text-success"
+                              : "bg-primary/10 text-primary"
+                          }
+                        >
+                          {row.status}
+                        </Badge>
+                      </td>
+                      <td className="px-4 py-3">
+                        <Badge variant="secondary" className="bg-accent text-accent-foreground">
+                          {row.clauseType}
+                        </Badge>
+                      </td>
+                      <td className="px-4 py-3">{row.confidence}%</td>
+                      <td className="px-4 py-3">{row.pages}</td>
+                      <td className="px-4 py-3 text-right">
+                        <Button variant="ghost" size="icon">
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-          </div>
-
-          {/* Recent tenders */}
-          <Card className="border">
-            <CardHeader>
-              <CardTitle className="text-base flex items-center justify-between">
-                Recent Tenders
-                <Clock className="h-4 w-4 text-muted-foreground" />
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {recentTenders.map((t) => (
-                <div key={t.name} className="pb-4 border-b last:border-0 last:pb-0">
-                  <div className="flex items-start justify-between gap-2 mb-2">
-                    <div className="min-w-0">
-                      <p className="font-medium text-sm truncate">{t.name}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {t.client} · {t.pages} pages
-                      </p>
-                    </div>
-                    <Badge
-                      variant="secondary"
-                      className={
-                        t.status === "Extracted"
-                          ? "bg-success/10 text-success"
-                          : t.status === "Processing"
-                          ? "bg-primary/10 text-primary"
-                          : "bg-warning/15 text-warning"
-                      }
-                    >
-                      {t.status === "Extracted" && <CheckCircle2 className="h-3 w-3 mr-1" />}
-                      {t.status}
-                    </Badge>
-                  </div>
-                  <Progress value={t.confidence} className="h-1.5" />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Confidence {t.confidence}%
-                  </p>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-        </div>
+            {filteredRows.length === 0 && (
+              <div className="px-4 py-8 text-center text-sm text-muted-foreground border-t">
+                No tenders match your search.
+              </div>
+            )}
+            <div className="flex items-center justify-between gap-3 px-4 py-3 border-t bg-card">
+              <Button variant="outline" size="sm">
+                <ChevronLeft className="h-4 w-4" /> Previous
+              </Button>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <span className="h-8 w-8 rounded-md bg-primary/10 text-primary font-medium flex items-center justify-center">
+                  1
+                </span>
+                <span>2</span>
+                <span>3</span>
+                <span>...</span>
+                <span>10</span>
+              </div>
+              <Button variant="outline" size="sm">
+                Next <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

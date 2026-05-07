@@ -1,6 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { Download, FileSpreadsheet, FileText, FileJson, FileCode } from "lucide-react";
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
+import * as XLSX from "xlsx";
 import { ModuleShell } from "@/components/ModuleShell";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -62,6 +65,10 @@ function downloadBlob(filename: string, content: string, mime: string) {
   a.download = filename;
   a.click();
   URL.revokeObjectURL(url);
+}
+
+function safeFileStem(value: string) {
+  return value.replace(/[^a-z0-9-_.]/gi, "-");
 }
 
 function Export() {
@@ -137,44 +144,164 @@ function Export() {
 
   const handleDownload = (kind: string) => {
     const payload = buildExportPayload();
+    const fileStem = safeFileStem(`PumpIQ-${docTitle}`);
+    const technicalColumns = [
+      "Pump Name",
+      "Flow",
+      "Head",
+      "Efficiency",
+      "NPSH (Net Positive Suction Head)",
+      "Material of Construction",
+      "Applicable Standards (API, ISO, etc.)",
+      "Power",
+      "Voltage",
+      "Frequency",
+      "Driver Type",
+    ];
+    const technicalRows = pumpPreviewRows.map((row) => [
+      row.pumpName,
+      row.flow,
+      row.head,
+      row.efficiency,
+      row.npsh,
+      row.materialOfConstruction,
+      row.applicableStandards,
+      row.power,
+      row.voltage,
+      row.frequency,
+      row.driver,
+    ]);
+    const commercialColumns = ["Parameter", "Value", "Confidence", "Source"];
+    const commercialRows = commercialPreviewRows.map((row) => [
+      row.parameter,
+      row.value,
+      row.confidence,
+      row.sourcePage,
+    ]);
+
     if (kind === "json") {
       downloadBlob(
-        `PumpIQ-${docTitle}-export.json`,
-        JSON.stringify(payload, null, 2),
-        "application/json",
+        `${fileStem}-export.json`,
+        JSON.stringify(
+          {
+            document: payload.document,
+            generatedAt: payload.generatedAt,
+            tables: {
+              technical: {
+                columns: technicalColumns,
+                rows: technicalRows.map((r) => Object.fromEntries(technicalColumns.map((c, i) => [c, r[i]]))),
+              },
+              commercial: {
+                columns: commercialColumns,
+                rows: commercialRows.map((r) => Object.fromEntries(commercialColumns.map((c, i) => [c, r[i]]))),
+              },
+            },
+          },
+          null,
+          2,
+        ),
+        "application/json;charset=utf-8",
       );
       return;
     }
-    const paramHeader = previewRows.map((r) => `"${r.parameter.replace(/"/g, '""')}"`).join(",");
-    const valueRow = previewRows.map((r) => `"${r.value.replace(/"/g, '""')}"`).join(",");
-    const confRow = previewRows.map((r) => `"${r.confidence}"`).join(",");
-    const sectionRow = previewRows.map((r) => `"${r.section}"`).join(",");
-    const sourceRow = previewRows.map((r) => `"${r.sourcePage}"`).join(",");
-    const csv = [
-      "Row," + paramHeader,
-      "Extracted value," + valueRow,
-      "Confidence %," + confRow,
-      "Section," + sectionRow,
-      "Source," + sourceRow,
-    ].join("\n");
-    if (kind === "csv" || kind === "excel-datasheet") {
-      const ext = "csv";
-      downloadBlob(`PumpIQ-${docTitle}-datasheet.${ext}`, csv, "text/csv");
+    if (kind === "csv") {
+      const csvEscape = (v: string) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+      const techHeader = technicalColumns.map(csvEscape).join(",");
+      const techBody = technicalRows.map((row) => row.map(csvEscape).join(",")).join("\n");
+      const commHeader = commercialColumns.map(csvEscape).join(",");
+      const commBody = commercialRows.map((row) => row.map(csvEscape).join(",")).join("\n");
+      const csv = [
+        "Technical Parameters by Pump",
+        techHeader,
+        techBody,
+        "",
+        "Commercial and Source Context",
+        commHeader,
+        commBody,
+      ].join("\n");
+      downloadBlob(`${fileStem}-datasheet.csv`, csv, "text/csv;charset=utf-8");
+      return;
+    }
+    if (kind === "excel-datasheet") {
+      const technicalSheetRows = pumpPreviewRows.map((row) => ({
+        "Pump Name": row.pumpName,
+        Flow: row.flow,
+        Head: row.head,
+        Efficiency: row.efficiency,
+        "NPSH (Net Positive Suction Head)": row.npsh,
+        "Material of Construction": row.materialOfConstruction,
+        "Applicable Standards (API, ISO, etc.)": row.applicableStandards,
+        Power: row.power,
+        Voltage: row.voltage,
+        Frequency: row.frequency,
+        "Driver Type": row.driver,
+      }));
+      const commercialSheetRows = commercialPreviewRows.map((row) => ({
+        Parameter: row.parameter,
+        Value: row.value,
+        Confidence: row.confidence,
+        Section: row.section,
+        Source: row.sourcePage,
+      }));
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(
+        workbook,
+        XLSX.utils.json_to_sheet(
+          technicalSheetRows.length
+            ? technicalSheetRows
+            : [
+                {
+                  "Pump Name": "—",
+                  Flow: "—",
+                  Head: "—",
+                  Efficiency: "—",
+                },
+              ],
+        ),
+        "Technical",
+      );
+      XLSX.utils.book_append_sheet(
+        workbook,
+        XLSX.utils.json_to_sheet(
+          commercialSheetRows.length
+            ? commercialSheetRows
+            : [{ Parameter: "—", Value: "—", Confidence: "—", Section: "—", Source: "—" }],
+        ),
+        "Commercial",
+      );
+      XLSX.writeFile(workbook, `${fileStem}-datasheet.xlsx`);
       return;
     }
     if (kind === "pdf-report") {
-      const colText = [
-        `PumpIQ — Tender export (demo)`,
-        `Document: ${docTitle}`,
-        `Generated: ${payload.generatedAt}`,
-        "",
-        previewRows.map((r) => r.parameter).join(" | "),
-        previewRows.map((r) => r.value).join(" | "),
-        previewRows.map((r) => r.confidence).join(" | "),
-        previewRows.map((r) => r.section).join(" | "),
-        previewRows.map((r) => r.sourcePage).join(" | "),
-      ].join("\n");
-      downloadBlob(`PumpIQ-${docTitle}-report.txt`, colText, "text/plain");
+      const pdf = new jsPDF({ unit: "pt", format: "a4" });
+      pdf.setFontSize(14);
+      pdf.text("PumpIQ Export Report", 40, 40);
+      pdf.setFontSize(10);
+      pdf.text(`Document: ${docTitle}`, 40, 56);
+      pdf.text(`Generated: ${payload.generatedAt}`, 40, 70);
+
+      autoTable(pdf, {
+        startY: 86,
+        head: [technicalColumns],
+        body: technicalRows.length ? technicalRows : [["—", "—", "—", "—", "—", "—", "—", "—", "—", "—", "—"]],
+        theme: "grid",
+        headStyles: { fillColor: [235, 238, 242], textColor: 30, fontStyle: "bold" },
+        styles: { fontSize: 8, cellPadding: 4, overflow: "linebreak" },
+        margin: { left: 40, right: 40 },
+      });
+
+      const afterTechnicalY = (pdf as jsPDF & { lastAutoTable?: { finalY?: number } }).lastAutoTable?.finalY ?? 120;
+      autoTable(pdf, {
+        startY: afterTechnicalY + 18,
+        head: [commercialColumns],
+        body: commercialRows.length ? commercialRows : [["—", "—", "—", "—"]],
+        theme: "grid",
+        headStyles: { fillColor: [235, 238, 242], textColor: 30, fontStyle: "bold" },
+        styles: { fontSize: 9, cellPadding: 4, overflow: "linebreak" },
+        margin: { left: 40, right: 40 },
+      });
+
+      pdf.save(`${fileStem}-report.pdf`);
     }
   };
 
